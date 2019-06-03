@@ -8,6 +8,9 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import java.io.OutputStream;
+import org.springframework.core.io.WritableResource;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 public class GcsController {
@@ -20,5 +23,13 @@ public class GcsController {
     return StreamUtils.copyToString(
         gcsFile.getInputStream(),
         Charset.defaultCharset()) + "\n";
+  }
+
+  @RequestMapping(value = "/", method = RequestMethod.POST)
+  String writeGcs(@RequestBody String data) throws IOException {
+    try (OutputStream os = ((WritableResource) gcsFile).getOutputStream()) {
+      os.write(data.getBytes());
+    }
+    return "file was updated\n";
   }
 }
